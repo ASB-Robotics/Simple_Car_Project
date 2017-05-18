@@ -1,31 +1,50 @@
 import curses
+import socket
+import sys
 
-# Simple console based controller accepting keyboard arrow commands to control car
+def writeLine( s ):
+    screen.addstr( 0, 0, '                    ' )
+    screen.addstr( 0, 0, s )
+    return
+
+def sendLine( s ):
+    HOST, PORT = "localhost", 9999
+    sock = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+    try:
+        sock.connect( ( HOST, PORT ) )
+        sock.sendall( s + "\n")
+        writeLine( sock.recv( 1024 ) )
+    finally:
+        sock.close()
+    return
 
 screen = curses.initscr()
 curses.noecho()
 curses.cbreak()
-screen.keypad(True)
+screen.keypad( True )
 
-try
-    screen.addstr(0,0,'Command')
-    while True
+try:
+    writeLine( 'Car Command?' )
+    while True:
         char = screen.getch()
-        if char == ord('q')
+        if char == ord( 'q' ):
             break
-        elif char == curses.KEY_RIGHT
-            screen.addstr(0, 0, 'RIGHT  ')
-            # TODO Issue RIGHT command socket message
-        elif char == curses.KEY_LEFT
-            screen.addstr(0, 0, 'LEFT   ')
-        elif char == curses.KEY_UP
-            screen.addstr(0, 0, 'FAST   ')
-        elif char == curses.KEY_DOWN
-            screen.addstr(0, 0, 'SLOW   ')
-        else
-            screen.addstr(0,0, 'UNKNOWN ')
-finally
-    curses.nocbreak(); screen.keypad(0); curses.echo()
+        elif char == curses.KEY_RIGHT:
+            writeLine( 'RIGHT' )
+            sendLine( 'RIGHT' )
+        elif char == curses.KEY_LEFT:
+            writeLine( 'LEFT' )
+            sendLine( 'LEFT' )
+        elif char == curses.KEY_UP:
+            writeLine( 'FAST' )
+            sendLine( 'FAST' )
+        elif char == curses.KEY_DOWN:
+            writeLine( 'SLOW' )
+            sendLine( 'SLOW' )
+        else:
+            writeLine( 'UNKNOWN' )
+finally:
+    curses.nocbreak()
+    screen.keypad( 0 )
+    curses.echo()
     curses.endwin()
-
-
